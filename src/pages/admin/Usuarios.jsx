@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-// Lista de usuarios
+// 4. Lista de usuarios
 const usuariosBackend = [
    {
       usuario: 'farboleda',
@@ -21,25 +21,32 @@ const usuariosBackend = [
    },
 ];
 
+// 1.
 const Usuarios = () => {
-   // Cambiar entre Tabla / Formulario
+   // 5. Cambiar entre Tabla / Formulario
    const [mostrarTabla, setMostrarTabla] = useState(true);
    // Cambiar texto botón
    const [textoBoton, setTextoBoton] = useState('Crear Nuevo Usuario');
    // listado de usuarios
    const [usuarios, setUsuarios] = useState([]);
+   // 12. Cambiar color botón
+   const [colorBoton, setColorBoton] = useState(true);
 
-   // La información de la BD la pedimos en un useEffect vacio
+   // 8. La información de la BD la pedimos en un useEffect vacio
    useEffect(() => {
       // Obtener listado de usuarios desde el backend
       setUsuarios(usuariosBackend);
    }, []);
 
-   // Escuchar 'mostrarTabla'
+   // 6. Escuchar 'mostrarTabla'
    useEffect(() => {
-      mostrarTabla
-         ? setTextoBoton('Crear Nuevo Usuario')
-         : setTextoBoton('Mostrar Usuarios');
+      if (mostrarTabla) {
+         setTextoBoton('Crear Nuevo Usuario');
+         setColorBoton(true);
+      } else {
+         setTextoBoton('Mostrar Usuarios');
+         setColorBoton(false);
+      }
    }, [mostrarTabla]);
 
    return (
@@ -52,20 +59,31 @@ const Usuarios = () => {
                onClick={() => {
                   setMostrarTabla(!mostrarTabla);
                }}
-               className='text-white bg-indigo-500 p-5 rounded-full mt-8 h-28 w-28 self-end'
+               className={
+                  // 13. fin
+                  colorBoton
+                     ? 'text-white bg-green-500 p-5 rounded-full mt-8 h-28 w-28 self-end'
+                     : 'text-white bg-indigo-500 p-5 rounded-full mt-8 h-28 w-28 self-end'
+               }
             >
                {textoBoton}
             </button>
          </div>
-         {mostrarTabla ? (
-            <TablaUsuarios listaUsuarios={usuarios} />
-         ) : (
-            <FormularioCreacionUsuarios />
-         )}
+         {
+            // 7. Mostrar Tabla/Formulario
+            mostrarTabla ? (
+               // 9.
+               <TablaUsuarios listaUsuarios={usuarios} />
+            ) : (
+               <FormularioCreacionUsuarios />
+            )
+         }
       </div>
    );
 };
 
+// 2.
+// 10. {listaUsuarios}
 const TablaUsuarios = ({ listaUsuarios }) => {
    useEffect(() => {
       console.log('Listado de usuarios en el componente tabla', listaUsuarios);
@@ -86,22 +104,26 @@ const TablaUsuarios = ({ listaUsuarios }) => {
                </tr>
             </thead>
             <tbody>
-               {listaUsuarios.map((usuario) => {
-                  return (
-                     <tr>
-                        <td>{usuario.usuario}</td>
-                        <td>{usuario.nombre}</td>
-                        <td>{usuario.rol}</td>
-                        <td>{usuario.modulo}</td>
-                     </tr>
-                  );
-               })}
+               {
+                  // 11.
+                  listaUsuarios.map((usuario) => {
+                     return (
+                        <tr>
+                           <td>{usuario.usuario}</td>
+                           <td>{usuario.nombre}</td>
+                           <td>{usuario.rol}</td>
+                           <td>{usuario.modulo}</td>
+                        </tr>
+                     );
+                  })
+               }
             </tbody>
          </table>
       </div>
    );
 };
 
+// 3.
 const FormularioCreacionUsuarios = () => {
    return (
       <div className='border border-gray-300 flex flex-col items-center justify-center'>
