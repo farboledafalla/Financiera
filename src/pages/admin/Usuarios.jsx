@@ -1,4 +1,9 @@
 import { useEffect, useState } from 'react';
+
+// 15. Mensajes al usuario
+import { ToastContainer, toast } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
+
 // 4. Lista de usuarios
 const usuariosBackend = [
    {
@@ -60,7 +65,7 @@ const Usuarios = () => {
                   setMostrarTabla(!mostrarTabla);
                }}
                className={
-                  // 13. fin
+                  // 13.
                   colorBoton
                      ? 'text-white bg-green-500 p-5 rounded-full mt-8 h-28 w-28 self-end'
                      : 'text-white bg-indigo-500 p-5 rounded-full mt-8 h-28 w-28 self-end'
@@ -75,9 +80,17 @@ const Usuarios = () => {
                // 9.
                <TablaUsuarios listaUsuarios={usuarios} />
             ) : (
-               <FormularioCreacionUsuarios />
+               // 18. Pasar estado (setter) de 'Usuarios' al componente 'FormualarioCreacionUsuarios'
+               // 21. (listaUsuarios, funcionParaAgregarUsuario)
+               <FormularioCreacionUsuarios
+                  funcionParaMostrarTabla={setMostrarTabla}
+                  listaUsuarios={usuarios}
+                  funcionParaAgregarUsuario={setUsuarios}
+               />
             )
+            // 16. Contenedor para mensaje
          }
+         <ToastContainer position='bottom-center' autoClose={5000} />
       </div>
    );
 };
@@ -124,38 +137,109 @@ const TablaUsuarios = ({ listaUsuarios }) => {
 };
 
 // 3.
-const FormularioCreacionUsuarios = () => {
+// 19. Recebir estado (prop) que viene del componente Padre (funcionParaMostrarTabla) para poder cambiarlo desde este componente
+// y mostrar la tabla una vez guarde el usuario
+// 22. (listaUsuarios, funcionParaAgregarUsuario)
+const FormularioCreacionUsuarios = ({
+   funcionParaMostrarTabla,
+   listaUsuarios,
+   funcionParaAgregarUsuario,
+}) => {
+   // Estados para los datos
+   const [usuario, setUsuario] = useState();
+   const [nombre, setNombre] = useState();
+   const [rol, setRol] = useState();
+   const [modulo, setModulo] = useState();
+
+   const enviarAlBackend = () => {
+      // 17. Crear mensaje para mostrar en el contenedor
+      toast.success('Hola DEV');
+      // 20. Cambiar estado de 'mostrarTabla'
+      funcionParaMostrarTabla(true);
+      // 23. Agregar un Usuario
+      funcionParaAgregarUsuario([
+         ...listaUsuarios,
+         {
+            usuario: usuario,
+            nombre: nombre,
+            rol: rol,
+            modulo: modulo,
+         },
+      ]);
+   };
+
+   // 14. Crear formulario
    return (
       <div className='border border-gray-300 flex flex-col items-center justify-center'>
          <h2 className=' text-2xl font-extrabold text-gray-800'>
             Crear Nuevo Usuario
          </h2>
-         <form className='grid grid-cols-2'>
-            <input
-               className='border-gray-500 border p-2 rounded-lg m-2'
-               type='text'
-               name=''
-               id=''
-            />
-            <input
-               className='border-gray-500 border p-2 rounded-lg m-2'
-               type='text'
-               name=''
-               id=''
-            />
-            <input
-               className='border-gray-500 border p-2 rounded-lg m-2'
-               type='text'
-               name=''
-               id=''
-            />
-            <input
-               className='border-gray-500 border p-2 rounded-lg m-2'
-               type='text'
-               name=''
-               id=''
-            />
-            <button className=' col-span-2 bg-green-400 p-2 rounded-full text-gray-90 shadow-md hover:text-white hover:bg-green-700'>
+         <form className='flex flex-col'>
+            <label htmlFor='usuario' className='flex flex-col'>
+               Usuario
+               <input
+                  className='border-gray-500 border p-2 rounded-lg m-2'
+                  type='text'
+                  name='usuario'
+                  id=''
+                  placeholder='pepito'
+                  onChange={(e) => {
+                     setUsuario(e.target.value);
+                  }}
+               />
+            </label>
+            <label htmlFor='nombre' className='flex flex-col'>
+               Nombre
+               <input
+                  className='border-gray-500 border p-2 rounded-lg m-2'
+                  type='text'
+                  name='nombre'
+                  id=''
+                  placeholder='Pepito Perez'
+                  onChange={(e) => {
+                     setNombre(e.target.value);
+                  }}
+               />
+            </label>
+            <label htmlFor='rol' className='flex flex-col'>
+               Rol
+               <select
+                  name='rol'
+                  className='border-gray-500 border p-2 rounded-lg m-2'
+                  onChange={(e) => {
+                     setRol(e.target.value);
+                  }}
+               >
+                  <option disabled>Seleccione rol</option>
+                  <option>Aministrador</option>
+                  <option>Contador</option>
+                  <option>Asistente</option>
+                  <option>Vendedor</option>
+               </select>
+            </label>
+            <label htmlFor='modulo' className='flex flex-col'>
+               Módulo
+               <select
+                  name='modulo'
+                  className='border-gray-500 border p-2 rounded-lg m-2'
+                  onChange={(e) => {
+                     setModulo(e.target.value);
+                  }}
+               >
+                  <option disabled>Seleccione Módulo</option>
+                  <option>Aministración</option>
+                  <option>Informes Contables</option>
+                  <option>Informes Estadisticos</option>
+                  <option>Ventas</option>
+               </select>
+            </label>
+            <button
+               type='button'
+               onClick={() => {
+                  enviarAlBackend();
+               }}
+               className=' col-span-2 bg-green-400 p-2 rounded-full text-gray-90 shadow-md hover:text-white hover:bg-green-700'
+            >
                Guardar Usuario
             </button>
          </form>
