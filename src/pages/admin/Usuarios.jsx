@@ -146,26 +146,31 @@ const FormularioCreacionUsuarios = ({
    funcionParaAgregarUsuario,
 }) => {
    // Estados para los datos
-   const [usuario, setUsuario] = useState();
-   const [nombre, setNombre] = useState();
-   const [rol, setRol] = useState();
-   const [modulo, setModulo] = useState();
+   const [usuario, setUsuario] = useState('');
+   const [nombre, setNombre] = useState('');
+   const [rol, setRol] = useState('');
+   const [modulo, setModulo] = useState('');
 
    const enviarAlBackend = () => {
-      // 17. Crear mensaje para mostrar en el contenedor
-      toast.success('Hola DEV');
-      // 20. Cambiar estado de 'mostrarTabla'
-      funcionParaMostrarTabla(true);
-      // 23. Agregar un Usuario
-      funcionParaAgregarUsuario([
-         ...listaUsuarios,
-         {
-            usuario: usuario,
-            nombre: nombre,
-            rol: rol,
-            modulo: modulo,
-         },
-      ]);
+      // 24. Validar que no vengan datos vacios
+      if (usuario === '' || nombre === '' || rol === '' || modulo === '') {
+         toast.error('Llene todos los datos');
+      } else {
+         // 17. Crear mensaje para mostrar en el contenedor
+         toast.success('Hola DEV');
+         // 20. Cambiar estado de 'mostrarTabla'
+         funcionParaMostrarTabla(true);
+         // 23. Agregar un Usuario
+         funcionParaAgregarUsuario([
+            ...listaUsuarios,
+            {
+               usuario: usuario,
+               nombre: nombre,
+               rol: rol,
+               modulo: modulo,
+            },
+         ]);
+      }
    };
 
    // 14. Crear formulario
@@ -183,6 +188,7 @@ const FormularioCreacionUsuarios = ({
                   name='usuario'
                   id=''
                   placeholder='pepito'
+                  required
                   onChange={(e) => {
                      setUsuario(e.target.value);
                   }}
@@ -196,6 +202,7 @@ const FormularioCreacionUsuarios = ({
                   name='nombre'
                   id=''
                   placeholder='Pepito Perez'
+                  required
                   onChange={(e) => {
                      setNombre(e.target.value);
                   }}
@@ -206,6 +213,7 @@ const FormularioCreacionUsuarios = ({
                <select
                   name='rol'
                   className='border-gray-500 border p-2 rounded-lg m-2'
+                  required
                   onChange={(e) => {
                      setRol(e.target.value);
                   }}
@@ -222,6 +230,7 @@ const FormularioCreacionUsuarios = ({
                <select
                   name='modulo'
                   className='border-gray-500 border p-2 rounded-lg m-2'
+                  required
                   onChange={(e) => {
                      setModulo(e.target.value);
                   }}
@@ -234,7 +243,7 @@ const FormularioCreacionUsuarios = ({
                </select>
             </label>
             <button
-               type='button'
+               type='submit'
                onClick={() => {
                   enviarAlBackend();
                }}
