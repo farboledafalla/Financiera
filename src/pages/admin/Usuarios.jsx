@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 
 // 15. Mensajes al usuario
 import { ToastContainer, toast } from 'react-toastify';
@@ -83,9 +83,9 @@ const Usuarios = () => {
                // 18. Pasar estado (setter) de 'Usuarios' al componente 'FormualarioCreacionUsuarios'
                // 21. (listaUsuarios, funcionParaAgregarUsuario)
                <FormularioCreacionUsuarios
-                  funcionParaMostrarTabla={setMostrarTabla}
+                  setMostrarTabla={setMostrarTabla}
                   listaUsuarios={usuarios}
-                  funcionParaAgregarUsuario={setUsuarios}
+                  setUsuarios={setUsuarios}
                />
             )
             // 16. Contenedor para mensaje
@@ -141,36 +141,32 @@ const TablaUsuarios = ({ listaUsuarios }) => {
 // y mostrar la tabla una vez guarde el usuario
 // 22. (listaUsuarios, funcionParaAgregarUsuario)
 const FormularioCreacionUsuarios = ({
-   funcionParaMostrarTabla,
+   setMostrarTabla,
    listaUsuarios,
-   funcionParaAgregarUsuario,
+   setUsuarios,
 }) => {
-   // Estados para los datos
-   const [usuario, setUsuario] = useState('');
-   const [nombre, setNombre] = useState('');
-   const [rol, setRol] = useState('');
-   const [modulo, setModulo] = useState('');
+   // Se le deja null para que no ponga alguna referencia al principio
+   const form = useRef(null);
 
-   const enviarAlBackend = () => {
-      // 24. Validar que no vengan datos vacios
-      if (usuario === '' || nombre === '' || rol === '' || modulo === '') {
-         toast.error('Llene todos los datos');
-      } else {
-         // 17. Crear mensaje para mostrar en el contenedor
-         toast.success('Hola DEV');
-         // 20. Cambiar estado de 'mostrarTabla'
-         funcionParaMostrarTabla(true);
-         // 23. Agregar un Usuario
-         funcionParaAgregarUsuario([
-            ...listaUsuarios,
-            {
-               usuario: usuario,
-               nombre: nombre,
-               rol: rol,
-               modulo: modulo,
-            },
-         ]);
-      }
+   // Controlar los datos del formulario
+   const submitForm = (e) => {
+      // Evita que el form se redirija con valores predefinidos
+      e.preventDefault();
+      const fd = new FormData(form.current);
+
+      // Crear el nuevo usuario con la info del form
+      const nuevoUsuario = {};
+      fd.forEach((value, key) => {
+         nuevoUsuario[key] = value;
+      });
+
+      // Mostrar usuario
+      //console.log('Datos del form: ', nuevoUsuario);
+
+      // Se debe hacer validación cuando se envíe al backend y así saber que mensaje mostrar
+      setMostrarTabla(true);
+      toast.success('Usuario agregado con éxito');
+      setUsuarios([...listaUsuarios, nuevoUsuario]);
    };
 
    // 14. Crear formulario
@@ -179,7 +175,7 @@ const FormularioCreacionUsuarios = ({
          <h2 className=' text-2xl font-extrabold text-gray-800'>
             Crear Nuevo Usuario
          </h2>
-         <form className='flex flex-col'>
+         <form ref={form} onSubmit={submitForm} className='flex flex-col'>
             <label htmlFor='usuario' className='flex flex-col'>
                Usuario
                <input
@@ -189,9 +185,6 @@ const FormularioCreacionUsuarios = ({
                   id=''
                   placeholder='pepito'
                   required
-                  onChange={(e) => {
-                     setUsuario(e.target.value);
-                  }}
                />
             </label>
             <label htmlFor='nombre' className='flex flex-col'>
@@ -203,9 +196,6 @@ const FormularioCreacionUsuarios = ({
                   id=''
                   placeholder='Pepito Perez'
                   required
-                  onChange={(e) => {
-                     setNombre(e.target.value);
-                  }}
                />
             </label>
             <label htmlFor='rol' className='flex flex-col'>
@@ -213,12 +203,12 @@ const FormularioCreacionUsuarios = ({
                <select
                   name='rol'
                   className='border-gray-500 border p-2 rounded-lg m-2'
+                  defaultValue={0}
                   required
-                  onChange={(e) => {
-                     setRol(e.target.value);
-                  }}
                >
-                  <option disabled>Seleccione rol</option>
+                  <option disabled value={0}>
+                     Seleccione rol
+                  </option>
                   <option>Aministrador</option>
                   <option>Contador</option>
                   <option>Asistente</option>
@@ -230,12 +220,12 @@ const FormularioCreacionUsuarios = ({
                <select
                   name='modulo'
                   className='border-gray-500 border p-2 rounded-lg m-2'
+                  defaultValue={0}
                   required
-                  onChange={(e) => {
-                     setModulo(e.target.value);
-                  }}
                >
-                  <option disabled>Seleccione Módulo</option>
+                  <option disabled value={0}>
+                     Seleccione Módulo
+                  </option>
                   <option>Aministración</option>
                   <option>Informes Contables</option>
                   <option>Informes Estadisticos</option>
@@ -244,9 +234,6 @@ const FormularioCreacionUsuarios = ({
             </label>
             <button
                type='submit'
-               onClick={() => {
-                  enviarAlBackend();
-               }}
                className=' col-span-2 bg-green-400 p-2 rounded-full text-gray-90 shadow-md hover:text-white hover:bg-green-700'
             >
                Guardar Usuario
