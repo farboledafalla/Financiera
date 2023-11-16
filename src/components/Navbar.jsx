@@ -1,10 +1,8 @@
-import { useDarkMode } from 'context/darkMode';
 import React from 'react';
 import { Link } from 'react-router-dom';
+import TriggerDarkMode from './TriggerDarkMode';
 
 const Navbar = () => {
-   const { darkMode, setDarkMode } = useDarkMode();
-
    return (
       <nav className='bg-yellow-600'>
          <ul className='flex w-full justify-between my-3'>
@@ -12,13 +10,7 @@ const Navbar = () => {
             <li>Navegacion1</li>
             <li>Navegacion2</li>
             <li>
-               <button
-                  onClick={() => {
-                     setDarkMode(!darkMode);
-                  }}
-               >
-                  {darkMode ? 'Desactivar' : 'Activar'} modo dark
-               </button>
+               <TriggerDarkMode />
             </li>
             <li className='px-3'>
                <Link to='/auth'>
