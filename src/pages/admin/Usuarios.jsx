@@ -4,27 +4,8 @@ import { useEffect, useState, useRef } from 'react';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 
-// 4. Lista de usuarios
-const usuariosBackend = [
-   {
-      usuario: 'farboleda',
-      nombre: 'Franklim Arboleda',
-      rol: 'Administrador',
-      modulo: 'Administración',
-   },
-   {
-      usuario: 'lmarin',
-      nombre: 'Leidy Marin',
-      rol: 'Coordinador',
-      modulo: 'Ventas',
-   },
-   {
-      usuario: 'rcardenas',
-      nombre: 'Rosa Cardenas',
-      rol: 'Director',
-      modulo: 'Gestión',
-   },
-];
+// Axios
+import axios from 'axios';
 
 // 1.
 const Usuarios = () => {
@@ -39,9 +20,24 @@ const Usuarios = () => {
 
    // 8. La información de la BD la pedimos en un useEffect vacio
    useEffect(() => {
-      // Obtener listado de usuarios desde el backend
-      setUsuarios(usuariosBackend);
-   }, []);
+      const obtenerUsuarios = async () => {
+         // Obtener listado de usuarios desde el backend
+         const options = { method: 'GET', url: 'http://localhost:3001/user' };
+
+         await axios
+            .request(options)
+            .then(function (response) {
+               setUsuarios(response.data.items);
+            })
+            .catch(function (error) {
+               console.error(error);
+            });
+      };
+
+      if (mostrarTabla) {
+         obtenerUsuarios();
+      }
+   }, [mostrarTabla]);
 
    // 6. Escuchar 'mostrarTabla'
    useEffect(() => {
@@ -111,9 +107,9 @@ const TablaUsuarios = ({ listaUsuarios }) => {
             <thead>
                <tr>
                   <td>Usuario</td>
-                  <td>Nombre</td>
-                  <td>Rol</td>
-                  <td>Módulo</td>
+                  <td>Email</td>
+                  <td>Password</td>
+                  <td>Perfil</td>
                </tr>
             </thead>
             <tbody>
@@ -123,9 +119,9 @@ const TablaUsuarios = ({ listaUsuarios }) => {
                      return (
                         <tr>
                            <td>{usuario.usuario}</td>
-                           <td>{usuario.nombre}</td>
-                           <td>{usuario.rol}</td>
-                           <td>{usuario.modulo}</td>
+                           <td>{usuario.email}</td>
+                           <td>{usuario.password}</td>
+                           <td>{usuario.perfil}</td>
                         </tr>
                      );
                   })
@@ -149,7 +145,7 @@ const FormularioCreacionUsuarios = ({
    const form = useRef(null);
 
    // Controlar los datos del formulario
-   const submitForm = (e) => {
+   const submitForm = async (e) => {
       // Evita que el form se redirija con valores predefinidos
       e.preventDefault();
       const fd = new FormData(form.current);
@@ -160,13 +156,35 @@ const FormularioCreacionUsuarios = ({
          nuevoUsuario[key] = value;
       });
 
-      // Mostrar usuario
-      //console.log('Datos del form: ', nuevoUsuario);
+      // No necesito cambiar el estado (listado de los usuarios)
+      //setUsuarios([...listaUsuarios, nuevoUsuario]);
 
-      // Se debe hacer validación cuando se envíe al backend y así saber que mensaje mostrar
+      // Datos para enviar al backend
+      const options = {
+         method: 'POST',
+         url: 'http://localhost:3001/user',
+         headers: { 'Content-Type': 'application/json' },
+         data: {
+            usuario: nuevoUsuario.usuario,
+            email: nuevoUsuario.email,
+            password: nuevoUsuario.password,
+            perfil: nuevoUsuario.perfil,
+         },
+      };
+
+      // Conectar con el backend y recibir respuesta
+      await axios
+         .request(options)
+         .then(function (response) {
+            console.log(response.data);
+            toast.success('Usuario agregado con éxito!');
+         })
+         .catch(function (error) {
+            console.error(error);
+            toast.error('Error creando el usuario!');
+         });
+
       setMostrarTabla(true);
-      toast.success('Usuario agregado con éxito');
-      setUsuarios([...listaUsuarios, nuevoUsuario]);
    };
 
    // 14. Crear formulario
@@ -187,49 +205,43 @@ const FormularioCreacionUsuarios = ({
                   required
                />
             </label>
-            <label htmlFor='nombre' className='flex flex-col'>
+            <label htmlFor='email' className='flex flex-col'>
                Nombre
                <input
                   className='border-gray-500 border p-2 rounded-lg m-2'
-                  type='text'
-                  name='nombre'
+                  type='email'
+                  name='email'
                   id=''
-                  placeholder='Pepito Perez'
+                  placeholder='pepitoperez@email.com'
                   required
                />
             </label>
-            <label htmlFor='rol' className='flex flex-col'>
+            <label htmlFor='password' className='flex flex-col'>
+               Password
+               <input
+                  className='border-gray-500 border p-2 rounded-lg m-2'
+                  type='password'
+                  name='password'
+                  id=''
+                  placeholder='S4gb/i&(0'
+                  required
+               />
+            </label>
+            <label htmlFor='perfil' className='flex flex-col'>
                Rol
                <select
-                  name='rol'
+                  name='perfil'
                   className='border-gray-500 border p-2 rounded-lg m-2'
                   defaultValue={0}
                   required
                >
                   <option disabled value={0}>
-                     Seleccione rol
+                     Seleccione perfil
                   </option>
                   <option>Aministrador</option>
                   <option>Contador</option>
                   <option>Asistente</option>
                   <option>Vendedor</option>
-               </select>
-            </label>
-            <label htmlFor='modulo' className='flex flex-col'>
-               Módulo
-               <select
-                  name='modulo'
-                  className='border-gray-500 border p-2 rounded-lg m-2'
-                  defaultValue={0}
-                  required
-               >
-                  <option disabled value={0}>
-                     Seleccione Módulo
-                  </option>
-                  <option>Aministración</option>
-                  <option>Informes Contables</option>
-                  <option>Informes Estadisticos</option>
-                  <option>Ventas</option>
                </select>
             </label>
             <button
